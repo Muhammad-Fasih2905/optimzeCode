@@ -2,147 +2,125 @@ import React, { useState } from "react";
 import MamaAILogo from "../components/MamaAILogo";
 import ResponseBox from "../components/ResponseBox";
 import SafetyItem from "../components/SafetyItem";
+import { AudioBubble } from "../components/AudioBubble";
 
 const MamaAIApp = () => {
     const [input, setInput] = useState("");
     const [responseType, setResponseType] = useState("");
     const [responseText, setResponseText] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleCheck = () => {
         if (!input.trim()) return;
 
-        const text = input.toLowerCase();
+        setIsLoading(true);
+        setTimeout(() => {
+            const lower = input.toLowerCase();
 
-        let flags = {
-            harmful: false,
-            cultural: false,
-            illegal: false,
-            nsfw: false,
-            toxicity: 0,
-        };
+            // Song Lyrics Detection
+            const isLyrics =
+                lower.includes("song:") ||
+                lower.includes("lyrics") ||
+                lower.includes("poetry") ||
+                lower.includes("shayari");
 
-       
-        const harmfulWords = ["kill", "harm", "attack", "suicide", "stab"];
-       
-        const cultureWords = ["religion", "culture", "race", "muslim", "christian"];
-       
-        const illegalWords = ["drugs", "hack", "bomb", "fraud", "scam"];
-       
-        const nsfwWords = ["sex", "nude", "porn"];
-
-        harmfulWords.forEach((word) => {
-            if (text.includes(word)) {
-                flags.harmful = true;
-                flags.toxicity += 40;
+            if (isLyrics) {
+                setResponseType("lyrics");
+                setResponseText(
+                    "🎵 **Song / Poetry Detected:**\n\n" +
+                    input.replace(/(.+)/g, "**$1**") // bold each line
+                );
+            } else if (lower.includes("kill") || lower.includes("harm")) {
+                setResponseType("harmful");
+                setResponseText("⚠️ Harmful content detected. Please rewrite safely.");
+            } else if (lower.includes("culture") || lower.includes("religion")) {
+                setResponseType("cultural");
+                setResponseText("⚠️ Cultural-sensitive content flagged.");
+            } else {
+                setResponseType("success");
+                setResponseText("✔ Safe content! Your text passed all checks.");
             }
-        });
 
-        cultureWords.forEach((word) => {
-            if (text.includes(word)) {
-                flags.cultural = true;
-                flags.toxicity += 20;
-            }
-        });
-
-        illegalWords.forEach((word) => {
-            if (text.includes(word)) {
-                flags.illegal = true;
-                flags.toxicity += 30;
-            }
-        });
-
-        nsfwWords.forEach((word) => {
-            if (text.includes(word)) {
-                flags.nsfw = true;
-                flags.toxicity += 30;
-            }
-        });
-
-        let safetyScore = 100 - flags.toxicity;
-        if (safetyScore < 0) safetyScore = 0;
-
-        let result = `📊 Prompt Analysis Report\n\n`;
-        result += `• Safety Score: **${safetyScore}/100**\n\n`;
-
-        if (flags.harmful) result += `⚠️ Harmful content detected.\n`;
-        if (flags.cultural) result += `⚠️ Culturally sensitive terms found.\n`;
-        if (flags.illegal) result += `⚠️ References to illegal activity.\n`;
-        if (flags.nsfw) result += `⚠️ NSFW content spotted.\n`;
-
-        if (!flags.harmful && !flags.cultural && !flags.illegal && !flags.nsfw) {
-            result += `✔ This prompt appears safe.\n`;
-        }
-
-        result += `\n💡 Suggestions:\n`;
-        if (flags.harmful) result += `• Avoid violent or harmful language.\n`;
-        if (flags.cultural) result += `• Be careful with religious or cultural terms.\n`;
-        if (flags.illegal) result += `• Remove illegal action references.\n`;
-        if (flags.nsfw) result += `• Avoid sexual or adult content.\n`;
-        if (safetyScore === 100) result += `• Perfect! No issues found.\n`;
-
-        if (flags.toxicity >= 60) setResponseType("harmful");
-        else if (flags.cultural) setResponseType("cultural");
-        else setResponseType("success");
-
-        setResponseText(result);
+            setIsLoading(false);
+        }, 900);
     };
 
-
     return (
-        <div className="w-full mx-auto mx-auto p-8 bg-[#f6faff] rounded-2xl shadow-xl text-center">
+        <div className="w-full min-h-screen p-6 bg-[#161b22] text-[#e2e8f0]">
+
             <MamaAILogo />
 
-            <h2 className="text-teal-700 font-semibold text-2xl mt-8">
-                Enter Your Prompt
-            </h2>
+            {/* User Input Section */}
+            <div className="mt-8 bg-[#1f2937] border-l-4 border-[#06b6d4] p-6 rounded-2xl shadow-md">
 
-            <textarea
-                className="w-full mt-4 p-3 border rounded-lg outline-none text-gray-700 focus:ring-2 focus:ring-blue-500"
-                rows={4}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Type something here..."
-            />
+                <h2 className="text-teal-300 font-semibold text-2xl">
+                    Enter Your Prompt
+                </h2>
 
-            <button
-                className={`mt-4 px-6 py-3 rounded-lg text-white font-bold transition ${input.trim()
-                    ? "bg-blue-700 hover:bg-blue-800"
-                    : "bg-blue-300 cursor-not-allowed"
-                    }`}
-                onClick={handleCheck}
-                disabled={!input.trim()}
-            >
-                Check Safety
-            </button>
+                <textarea
+                    className="w-full mt-4 p-4 bg-[#30363d] text-[#e2e8f0] rounded-xl focus:ring-2 focus:ring-[#06b6d4]"
+                    rows={4}
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="Type something here..."
+                />
 
-            <div className="mt-10 bg-blue-50 border-2 border-blue-500 rounded-xl p-6 text-left">
-                <h3 className="text-blue-700 font-bold text-xl mb-4">
-                    🔒 Safety Rules
-                </h3>
+                <button
+                    className={`mt-5 px-8 py-3 rounded-xl font-bold transition-all 
+                    ${input.trim()
+                            ? "bg-[#06b6d4] hover:brightness-110 text-black"
+                            : "bg-[#30363d] text-gray-500 cursor-not-allowed"
+                        }`}
+                    onClick={handleCheck}
+                    disabled={!input.trim()}
+                >
+                    Analyze Prompt
+                </button>
+
+                {/* Loading Spinner */}
+                {isLoading && (
+                    <div className="mt-5 flex justify-center">
+                        <div className="w-8 h-8 border-4 border-[#06b6d4] border-t-transparent rounded-full animate-spin" />
+                    </div>
+                )}
+            </div>
+
+            {/* Safety Rules */}
+            <div className="mt-10 bg-[#1f2937] border border-[#06b6d4]/40 rounded-xl p-6">
+                <h3 className="text-cyan-300 font-bold text-xl mb-4">🔒 Safety Rules</h3>
 
                 <div className="grid gap-4 md:grid-cols-2">
-                    <SafetyItem
-                        title="No Harmful Content"
-                        text="Violence, self-harm or dangerous instructions are filtered automatically."
-                    />
-                    <SafetyItem
-                        title="Cultural Sensitivity"
-                        text="Avoid disrespectful or offensive cultural references."
-                    />
-                    <SafetyItem
-                        title="No Illegal Activity"
-                        text="Illegal, unethical or unsafe actions are not allowed."
-                    />
-                    <SafetyItem
-                        title="Friendly Output"
-                        text="Mama AI always returns polite and positive guidance."
-                    />
+                    <SafetyItem title="No Harmful Content" text="Violence or dangerous actions are filtered." />
+                    <SafetyItem title="Cultural Sensitivity" text="Avoid offensive cultural language." />
+                    <SafetyItem title="No Illegal Activity" text="Illegal actions & methods are blocked." />
+                    <SafetyItem title="Friendly Output" text="Mama AI always stays polite & positive." />
                 </div>
             </div>
 
+            {/* Response */}
             {responseType && (
-                <ResponseBox type={responseType}>{responseText}</ResponseBox>
+                <div className="mt-10">
+                    <ResponseBox type={responseType}>{responseText}</ResponseBox>
+
+                    {/* Example audio bubble */}
+                    {responseType === "lyrics" && (
+                        <AudioBubble src="/sample.mp3" />
+                    )}
+                </div>
             )}
+
+            {/* Footer Action Buttons */}
+            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 flex gap-4">
+
+                {["Image", "Mic", "Video"].map((btn, index) => (
+                    <button
+                        key={index}
+                        className="backdrop-blur-xl bg-[#30363d]/50 hover:bg-[#06b6d4]/20 p-4 rounded-full shadow-xl transition border border-white/10 active:bg-[#06b6d4]"
+                    >
+                        <span className="text-[#e2e8f0]">{btn}</span>
+                    </button>
+                ))}
+            </div>
         </div>
     );
 };

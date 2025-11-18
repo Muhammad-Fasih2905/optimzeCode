@@ -1,11 +1,19 @@
+import React from "react";
+
 const MamaAILogo = () => (
     <div className="mb-6 flex flex-col items-center select-none">
-        <span className="text-6xl text-blue-700 leading-none">♦</span>
-        <span className="text-6xl text-yellow-500 -mt-4 leading-none">👑</span>
-        <h1 className="text-3xl text-indigo-900 font-extrabold mt-3">
+        {/* Diamond + Crown with neon cyan glow */}
+        <span className="text-6xl leading-none" style={{ color: "#06b6d4", textShadow: "0 6px 18px rgba(6,182,212,0.12)" }}>♦</span>
+        <span className="text-6xl -mt-4 leading-none" style={{ color: "#ffc107", filter: "drop-shadow(0 6px 18px rgba(255,193,7,0.08))" }}>👑</span>
+
+        <h1 className="text-2xl sm:text-3xl font-extrabold mt-3" style={{ color: "#e2e8f0" }}>
             Mama AI System
         </h1>
-        <p className="italic text-gray-600 mt-2 border-b border-blue-300 pb-3">
+
+        <p
+            className="italic mt-2 pb-3 text-sm sm:text-base border-b"
+            style={{ color: "#cbd5e1", borderColor: "#0e6f76" }}
+        >
             Safe • Smart • Human-Friendly
         </p>
     </div>
